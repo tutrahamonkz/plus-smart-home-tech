@@ -1,4 +1,4 @@
-package dto;
+package ru.yandex.practicum.model.sensor;
 
 import lombok.Getter;
 
