@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 
@@ -19,6 +21,8 @@ import java.time.Instant;
         @JsonSubTypes.Type(value = ScenarioRemovedEvent.class, name = "SCENARIO_REMOVED")
 })
 @Getter
+@Setter
+@ToString
 public abstract class HubEvent {
     @NotBlank
     String hubId;

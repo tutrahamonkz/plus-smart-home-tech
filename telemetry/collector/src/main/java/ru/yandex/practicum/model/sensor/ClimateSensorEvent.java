@@ -1,8 +1,10 @@
 package ru.yandex.practicum.model.sensor;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class ClimateSensorEvent extends SensorEvent {
 
     private Integer temperatureC;
