@@ -20,7 +20,11 @@ public class KafkaAvroProducer {
 
         log.info("Отправка {} в топик {}", data, topic);
 
-        producer.send(record);
-        producer.flush();
+        try {
+            producer.send(record);
+            producer.flush();
+        } catch (Exception e) {
+            log.error("Ошибка при отправке сообщения в Kafka: {}", e.getMessage(), e);
+        }
     }
 }
