@@ -86,37 +86,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <plugin>
-                <groupId>io.github.ascopes</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-
-                <configuration>
-                    <protocVersion>3.23.4</protocVersion>
-                    <sourceDirectories>
-                        <sourceDirectory>${project.parent.basedir}/src/main/proto</sourceDirectory>
-                    </sourceDirectories>
-                    <binaryMavenPlugins>
-                        <binaryMavenPlugin>
-                            <groupId>io.grpc</groupId>
-                            <artifactId>protoc-gen-grpc-java</artifactId>
-                            <version>${grpc.version}</version>
-                        </binaryMavenPlugin>
-                    </binaryMavenPlugins>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <protoSourceDirectory>${project.basedir}/src/main/proto</protoSourceDirectory>
-                            <outputDirectory>${project.build.directory}/generated-sources/protobuf</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 
