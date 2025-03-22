@@ -6,7 +6,6 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import ru.yandex.practicum.exception.BadRequestException;
 import ru.yandex.practicum.kafka.telemetry.event.*;
-import ru.yandex.practicum.model.hub.*;
 
 @Mapper
 public interface HubMapper {
