@@ -31,7 +31,7 @@ public class EventAvroSerializer implements Serializer<SpecificRecordBase> {
 
             return outputStream.toByteArray();
         } catch (IOException e) {
-            throw new SerializationException("Ошибка сериализации экземпляра WeatherEvent", e);
+            throw new SerializationException("Ошибка сериализации экземпляра Event", e);
         }
     }
 }
