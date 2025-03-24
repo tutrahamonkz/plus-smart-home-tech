@@ -40,7 +40,7 @@ public interface HubMapper {
 
     default DeviceTypeAvro map(DeviceTypeProto type) {
         if (type == DeviceTypeProto.UNRECOGNIZED) {
-            return null; // Или выберите другое значение по умолчанию
+            return null;
         }
         return DeviceTypeAvro.valueOf(type.name());
     }
