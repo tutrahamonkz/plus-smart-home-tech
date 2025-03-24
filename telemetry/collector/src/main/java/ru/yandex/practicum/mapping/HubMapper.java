@@ -18,21 +18,21 @@ public interface HubMapper {
     @Mapping(target = "payload", source = ".", qualifiedByName = "mapPayload")
     HubEventAvro mapHubToAvro(HubEventProto event);
 
-    @Named("mapPayload")
-    default Object mapPayload(HubEventProto event) {
-        return switch (event.getPayloadCase()) {
-            case SCENARIO_ADDED -> mapHubToAvro((ScenarioAddedEventProto) event);
-            case SCENARIO_REMOVED -> mapHubToAvro((ScenarioRemovedEventProto) event);
-            case DEVICE_ADDED -> mapHubToAvro((DeviceAddedEventProto) event);
-            case DEVICE_REMOVED -> mapHubToAvro((DeviceRemovedEventProto) event);
-            default -> throw new BadRequestException("Задан неверный тип сенсора " + event.getPayloadCase());
-        };
-    }
-
     DeviceAddedEventAvro mapHubToAvro(DeviceAddedEventProto event);
     DeviceRemovedEventAvro mapHubToAvro(DeviceRemovedEventProto event);
     ScenarioAddedEventAvro mapHubToAvro(ScenarioAddedEventProto event);
     ScenarioRemovedEventAvro mapHubToAvro(ScenarioRemovedEventProto event);
+
+    @Named("mapPayload")
+    default Object mapPayload(HubEventProto event) {
+        return switch (event.getPayloadCase()) {
+            case SCENARIO_ADDED -> mapHubToAvro(event.getScenarioAdded());
+            case SCENARIO_REMOVED -> mapHubToAvro(event.getScenarioRemoved());
+            case DEVICE_ADDED -> mapHubToAvro(event.getDeviceAdded());
+            case DEVICE_REMOVED -> mapHubToAvro(event.getDeviceRemoved());
+            default -> throw new BadRequestException("Задан неверный тип сенсора " + event.getPayloadCase());
+        };
+    }
 
     default Instant map(Timestamp timestamp) {
         return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());

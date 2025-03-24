@@ -19,23 +19,23 @@ public interface SensorMapper {
     @Mapping(target = "payload", source = ".", qualifiedByName = "mapPayload")
     SensorEventAvro mapSensorToAvro(SensorEventProto event);
 
+    ClimateSensorAvro mapClimateSensorToAvro(ClimateSensorProto event);
+    LightSensorAvro mapLightSensorToAvro(LightSensorProto event);
+    MotionSensorAvro mapMotionSensorToAvro(MotionSensorProto event);
+    SwitchSensorAvro mapSwitchSensorToAvro(SwitchSensorProto event);
+    TemperatureSensorAvro mapTemperatureSensorToAvro(TemperatureSensorProto event);
+
     @Named("mapPayload")
     default Object mapPayload(SensorEventProto event) {
         return switch (event.getPayloadCase()) {
-            case LIGHT_SENSOR_EVENT -> mapSensorToAvro((LightSensorProto) event);
-            case MOTION_SENSOR_EVENT -> mapSensorToAvro((MotionSensorProto) event);
-            case CLIMATE_SENSOR_EVENT -> mapSensorToAvro((ClimateSensorProto) event);
-            case SWITCH_SENSOR_EVENT -> mapSensorToAvro((SwitchSensorProto) event);
-            case TEMPERATURE_SENSOR_EVENT -> mapSensorToAvro((TemperatureSensorProto) event);
+            case LIGHT_SENSOR_EVENT -> mapLightSensorToAvro(event.getLightSensorEvent());
+            case MOTION_SENSOR_EVENT -> mapMotionSensorToAvro(event.getMotionSensorEvent());
+            case CLIMATE_SENSOR_EVENT -> mapClimateSensorToAvro(event.getClimateSensorEvent());
+            case SWITCH_SENSOR_EVENT -> mapSwitchSensorToAvro(event.getSwitchSensorEvent());
+            case TEMPERATURE_SENSOR_EVENT -> mapTemperatureSensorToAvro(event.getTemperatureSensorEvent());
             default -> throw new BadRequestException("Задан неверный тип сенсора " + event.getPayloadCase());
         };
     }
-
-    ClimateSensorAvro mapSensorToAvro(ClimateSensorProto event);
-    LightSensorAvro mapSensorToAvro(LightSensorProto event);
-    MotionSensorAvro mapSensorToAvro(MotionSensorProto event);
-    SwitchSensorAvro mapSensorToAvro(SwitchSensorProto event);
-    TemperatureSensorAvro mapSensorToAvro(TemperatureSensorProto event);
 
     default Instant map(Timestamp timestamp) {
         return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());

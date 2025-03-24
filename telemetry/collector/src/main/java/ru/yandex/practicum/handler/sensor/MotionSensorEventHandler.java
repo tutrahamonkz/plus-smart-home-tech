@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.kafka.KafkaAvroProducer;
+import ru.yandex.practicum.mapping.SensorMapper;
 
 @Slf4j
 @Component
@@ -23,6 +24,7 @@ public class MotionSensorEventHandler implements SensorEventHandler {
 
     @Override
     public void handle(SensorEventProto event) {
-
+        log.info("Received motion sensor event: {}", event);
+        producer.send(topic, SensorMapper.INSTANCE.mapSensorToAvro(event));
     }
 }
