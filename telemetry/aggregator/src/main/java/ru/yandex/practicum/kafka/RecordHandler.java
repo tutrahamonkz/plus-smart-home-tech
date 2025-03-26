@@ -26,19 +26,21 @@ public class RecordHandler {
                     .build();
             snapshots.put(event.getHubId(), snapshot);
         }
+
         Map<String, SensorStateAvro> states = snapshot.getSensorsState();
-        if(!states.isEmpty() && states.containsKey(event.getHubId())) {
-            SensorStateAvro oldState = states.get(event.getHubId());
+        if(!states.isEmpty() && states.containsKey(event.getId())) {
+            SensorStateAvro oldState = states.get(event.getId());
             if(oldState.getTimestamp().isAfter(event.getTimestamp()) ||
             oldState.getData().equals(event.getPayload())) {
                 return Optional.empty();
             }
         }
+
         SensorStateAvro state = SensorStateAvro.newBuilder()
                 .setData(event.getPayload())
                 .setTimestamp(event.getTimestamp())
                 .build();
-        snapshot.getSensorsState().put(event.getHubId(), state);
+        snapshot.getSensorsState().put(event.getId(), state);
         snapshot.setTimestamp(event.getTimestamp());
         return Optional.of(snapshot);
     }

@@ -57,6 +57,7 @@ public class AggregationStarter {
 
                 int count = 0;
                 for (ConsumerRecord<Void, SensorEventAvro> record : records) {
+                    log.info("Received record {}", record.value());
                     Optional<SensorsSnapshotAvro> snapshot = recordHandler.updateState(record.value());
                     if (snapshot.isPresent()) {
                         ProducerRecord<Void, SensorsSnapshotAvro> producerRecord = new ProducerRecord<>(snapshotTopic,
