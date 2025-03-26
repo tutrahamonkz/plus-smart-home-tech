@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Component
 public class RecordHandler {
-    private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
+    private static final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
 
     Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
 
@@ -24,10 +24,11 @@ public class RecordHandler {
                     .setTimestamp(event.getTimestamp())
                     .setSensorsState(new HashMap<>())
                     .build();
+            snapshots.put(event.getHubId(), snapshot);
         }
         Map<String, SensorStateAvro> states = snapshot.getSensorsState();
-        if(!states.isEmpty() && states.containsKey(event.getId())) {
-            SensorStateAvro oldState = states.get(event.getId());
+        if(!states.isEmpty() && states.containsKey(event.getHubId())) {
+            SensorStateAvro oldState = states.get(event.getHubId());
             if(oldState.getTimestamp().isAfter(event.getTimestamp()) ||
             oldState.getData().equals(event.getPayload())) {
                 return Optional.empty();
