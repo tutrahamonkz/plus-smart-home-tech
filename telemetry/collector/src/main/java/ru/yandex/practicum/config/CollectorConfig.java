@@ -10,7 +10,7 @@ import org.apache.kafka.common.serialization.VoidSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import ru.yandex.practicum.kafka.EventAvroSerializer;
+import ru.yandex.practicum.kafka.serializer.EventAvroSerializer;
 
 import java.util.Properties;
 
