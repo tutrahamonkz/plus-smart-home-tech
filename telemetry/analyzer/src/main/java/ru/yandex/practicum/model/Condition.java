@@ -1,8 +1,10 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
+import lombok.Setter;
 
 @Entity
+@Setter
 @Table(name = "conditions")
 public class Condition {
 
