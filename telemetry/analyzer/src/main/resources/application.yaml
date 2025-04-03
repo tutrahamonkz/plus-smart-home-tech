@@ -6,6 +6,13 @@ grpc:
       keepAliveWithoutCalls: true
       negotiationType: plaintext
 
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:6541/smarthome
+    driver-class-name: org.postgresql.Driver
+    username: smart
+    password: home
+
 kafka:
   consumer:
     bootstrap-servers: ${KAFKA_URL:localhost:9092}

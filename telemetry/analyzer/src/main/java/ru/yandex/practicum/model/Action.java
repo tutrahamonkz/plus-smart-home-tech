@@ -8,7 +8,7 @@ public class Action {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    String id;
 
     @Column(name = "type")
     String type;

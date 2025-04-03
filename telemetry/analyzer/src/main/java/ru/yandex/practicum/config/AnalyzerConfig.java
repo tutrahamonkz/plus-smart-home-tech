@@ -24,7 +24,7 @@ public class AnalyzerConfig {
     @Bean
     public KafkaConsumer<Void, HubEventAvro> hubEventConsumer() {
         Properties config = new Properties();
-        config.put(ConsumerConfig.CLIENT_ID_CONFIG, "AnalyzerConsumer");
+        config.put(ConsumerConfig.CLIENT_ID_CONFIG, "AnalyzerHubConsumer");
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer.group.id");
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, VoidDeserializer.class);
@@ -35,7 +35,7 @@ public class AnalyzerConfig {
     @Bean
     public KafkaConsumer<Void, SensorsSnapshotAvro> snapshotConsumer() {
         Properties config = new Properties();
-        config.put(ConsumerConfig.CLIENT_ID_CONFIG, "AnalyzerConsumer");
+        config.put(ConsumerConfig.CLIENT_ID_CONFIG, "AnalyzerSnapshotConsumer");
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer.group.id");
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, VoidDeserializer.class);
