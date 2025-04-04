@@ -1,20 +1,29 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 
-@Entity
+import java.util.List;
+
 @Setter
+@Getter
+@Entity
 @Table(name = "actions")
+@EqualsAndHashCode
 public class Action {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "type")
+    @Column(nullable = false)
     String type;
 
-    @Column(name = "value")
+    @Column(nullable = false)
     Integer value;
+
+    @OneToMany(mappedBy = "action")
+    private List<ScenarioAction> scenarioActions;
 }

@@ -10,8 +10,8 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.kafka.HubHandler;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.service.HubServiceImpl;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class HubEventProcessor implements Runnable {
 
     private final KafkaConsumer<Void, HubEventAvro> consumer;
-    private final HubHandler hubHandler;
+    private final HubServiceImpl hubService;
 
     private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
 
@@ -45,7 +45,7 @@ public class HubEventProcessor implements Runnable {
                 int count = 0;
                 for (ConsumerRecord<Void, HubEventAvro> record : records) {
                     log.info("Received record {}", record.value());
-                    hubHandler.updateState(record.value());
+                    hubService.updateState(record.value());
                     manageOffsets(record, count, consumer);
                     count++;
                 }

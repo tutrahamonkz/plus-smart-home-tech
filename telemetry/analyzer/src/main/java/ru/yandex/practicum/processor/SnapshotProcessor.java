@@ -11,8 +11,8 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
-import ru.yandex.practicum.kafka.SnapshotHandler;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
+import ru.yandex.practicum.service.SnapshotServiceImpl;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -26,7 +26,7 @@ import java.util.Optional;
 public class SnapshotProcessor {
 
     private final KafkaConsumer<Void, SensorsSnapshotAvro> consumer;
-    private final SnapshotHandler snapshotHandler;
+    private final SnapshotServiceImpl snapshotService;
 
     private static final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
 
@@ -46,7 +46,7 @@ public class SnapshotProcessor {
                 int count = 0;
                 for (ConsumerRecord<Void, SensorsSnapshotAvro> record : records) {
                     log.info("Received record {}", record.value());
-                    Optional<DeviceActionRequest> sensorsSnapshotAvro = snapshotHandler.updateState(record.value());
+                    Optional<DeviceActionRequest> sensorsSnapshotAvro = snapshotService.updateState(record.value());
                     if (sensorsSnapshotAvro.isPresent()) {
                         // здесь нужна отправка действий из сценария на hub с помощью grpc клиента.
                     }

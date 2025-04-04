@@ -1,20 +1,34 @@
 package ru.yandex.practicum.model;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 
-@Entity
+import java.util.List;
+
 @Setter
-@Table(name = "scenarios")
+@Getter
+@EqualsAndHashCode
+@Entity
+@Table(name = "scenarios", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"hub_id", "name"})
+})
 public class Scenario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "hub_id")
-    String hubId;
+    @Column(name = "hub_id", nullable = false)
+    private String hubId;
 
-    @Column(name = "name")
-    String name;
+    @Column(nullable = false)
+    private String name;
+
+    @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ScenarioCondition> scenarioConditions;
+
+    @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ScenarioAction> scenarioActions;
 }
