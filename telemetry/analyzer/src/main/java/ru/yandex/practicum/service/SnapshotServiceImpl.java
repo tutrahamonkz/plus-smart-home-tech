@@ -4,6 +4,7 @@ import com.google.protobuf.Timestamp;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
@@ -14,7 +15,6 @@ import ru.yandex.practicum.kafka.telemetry.event.ConditionTypeAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorStateAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.model.*;
-import ru.yandex.practicum.repository.ConditionRepository;
 import ru.yandex.practicum.repository.ScenarioRepository;
 
 import java.time.Instant;
@@ -33,17 +33,18 @@ public class SnapshotServiceImpl {
 
     private final ScenarioRepository scenarioRepository;
 
-    Map<String, SensorHandler> sensorHandlers;
+    private final Map<String, SensorHandler> handlers;
 
-    public SnapshotServiceImpl(ScenarioRepository scenarioRepository, Set<SensorHandler> sensorHandlers, ConditionRepository conditionRepository) {
+    public SnapshotServiceImpl(ScenarioRepository scenarioRepository, Set<SensorHandler> sensorHandlers) {
         this.scenarioRepository = scenarioRepository;
-        this.sensorHandlers = sensorHandlers.stream()
+        this.handlers = sensorHandlers.stream()
                 .collect(Collectors.toMap(
                         SensorHandler::getEventType,
                         Function.identity()
                 ));
     }
 
+    @Transactional
     public void updateState(SensorsSnapshotAvro snapshotAvro) {
         List<Scenario> scenarios = scenarioRepository.findAllByHubId(snapshotAvro.getHubId());
 
@@ -69,7 +70,7 @@ public class SnapshotServiceImpl {
             return false;
         }
 
-        SensorHandler handler = sensorHandlers.get(sensorStateAvro.getData().getClass().getCanonicalName());
+        SensorHandler handler = handlers.get(sensorStateAvro.getData().getClass().getCanonicalName());
         if (handler == null) {
             throw new IllegalArgumentException("Unknown sensor type " +
                     sensorStateAvro.getData().getClass().getCanonicalName());

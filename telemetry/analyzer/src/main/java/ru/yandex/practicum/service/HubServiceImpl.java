@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 public class HubServiceImpl {
 
-    private Map<String, HubEventHandler> handlers;
+    private final Map<String, HubEventHandler> handlers;
 
     public HubServiceImpl(Set<HubEventHandler> handlers) {
         this.handlers = handlers.stream()
