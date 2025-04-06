@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Setter
 @Getter
 @Entity
@@ -19,11 +17,8 @@ public class Action {
     private Long id;
 
     @Column(nullable = false)
-    String type;
+    private String type;
 
     @Column(nullable = false)
-    Integer value;
-
-    @OneToMany(mappedBy = "action")
-    private List<ScenarioAction> scenarioActions;
+    private Integer value;
 }

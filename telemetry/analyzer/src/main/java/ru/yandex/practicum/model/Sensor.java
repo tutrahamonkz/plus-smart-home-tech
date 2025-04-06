@@ -1,11 +1,12 @@
 package ru.yandex.practicum.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -19,10 +20,4 @@ public class Sensor {
 
     @Column(name = "hub_id", nullable = false)
     private String hubId;
-
-    @OneToMany(mappedBy = "sensor", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    private List<ScenarioCondition> scenarioConditions;
-
-    @OneToMany(mappedBy = "sensor", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-    private List<ScenarioAction> scenarioActions;
 }

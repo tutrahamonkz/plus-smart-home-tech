@@ -7,12 +7,12 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
-@Setter
 @Getter
-@Embeddable
+@Setter
 @EqualsAndHashCode
+@Embeddable
 public class ScenarioActionKey implements Serializable {
     private Long scenarioId;
-    private String sensorId;
     private Long actionId;
+    private String sensorId;
 }

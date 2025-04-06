@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Entity
 @Setter
 @Getter
@@ -25,8 +23,5 @@ public class Condition {
     private String operation;
 
     @Column(nullable = false)
-    Integer value;
-
-    @OneToMany(mappedBy = "condition")
-    private List<ScenarioCondition> scenarioConditions;
+    private Integer value;
 }

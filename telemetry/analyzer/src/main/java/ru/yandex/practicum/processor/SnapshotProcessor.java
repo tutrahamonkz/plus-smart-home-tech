@@ -10,7 +10,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.service.SnapshotServiceImpl;
 
@@ -18,7 +17,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -46,10 +44,7 @@ public class SnapshotProcessor {
                 int count = 0;
                 for (ConsumerRecord<Void, SensorsSnapshotAvro> record : records) {
                     log.info("Received record {}", record.value());
-                    Optional<DeviceActionRequest> sensorsSnapshotAvro = snapshotService.updateState(record.value());
-                    if (sensorsSnapshotAvro.isPresent()) {
-                        // здесь нужна отправка действий из сценария на hub с помощью grpc клиента.
-                    }
+                    snapshotService.updateState(record.value());
                     manageOffsets(record, count, consumer);
                     count++;
                 }
