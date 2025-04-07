@@ -1,6 +1,5 @@
 package ru.yandex.practicum.kafka;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -26,7 +25,6 @@ import java.util.Optional;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class AggregationStarter {
 
     private final KafkaProducer<Void, SensorsSnapshotAvro> producer;
@@ -41,14 +39,23 @@ public class AggregationStarter {
 
     private static final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
+    public AggregationStarter(KafkaProducer<Void, SensorsSnapshotAvro> producer,
+                              KafkaConsumer<Void, SensorEventAvro> consumer, RecordHandler recordHandler) {
+        this.producer = producer;
+        this.consumer = consumer;
+        this.recordHandler = recordHandler;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
+    }
+
     /**
      * Метод для начала процесса агрегации данных.
      * Подписывается на топики для получения событий от датчиков,
      * формирует снимок их состояния и записывает в кафку.
      */
     public void start() {
-        List<String> topics = List.of(sensorTopic);
         try {
+            List<String> topics = List.of(sensorTopic);
             consumer.subscribe(topics);
 
             // Цикл обработки событий
@@ -104,9 +111,9 @@ public class AggregationStarter {
                 new OffsetAndMetadata(record.offset() + 1)
         );
 
-        if(count % 10 == 0) {
+        if (count % 10 == 0) {
             consumer.commitAsync(currentOffsets, (offsets, exception) -> {
-                if(exception != null) {
+                if (exception != null) {
                     log.warn("Ошибка во время фиксации оффсетов: {}", offsets, exception);
                 }
             });

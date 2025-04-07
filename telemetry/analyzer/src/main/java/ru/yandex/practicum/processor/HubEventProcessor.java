@@ -1,6 +1,5 @@
 package ru.yandex.practicum.processor;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -20,7 +19,6 @@ import java.util.Map;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class HubEventProcessor implements Runnable {
 
     private final KafkaConsumer<Void, HubEventAvro> consumer;
@@ -33,13 +31,21 @@ public class HubEventProcessor implements Runnable {
 
     private static final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
+    public HubEventProcessor(KafkaConsumer<Void, HubEventAvro> consumer, HubServiceImpl hubService) {
+        this.consumer = consumer;
+        this.hubService = hubService;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
+    }
+
     @Override
     public void run() {
-        List<String> topics = List.of(sensorTopic);
-        try{
+
+        try {
+            List<String> topics = List.of(sensorTopic);
             consumer.subscribe(topics);
 
-            while(true){
+            while (true) {
                 ConsumerRecords<Void, HubEventAvro> records = consumer.poll(CONSUME_ATTEMPT_TIMEOUT);
 
                 int count = 0;
@@ -52,7 +58,7 @@ public class HubEventProcessor implements Runnable {
             }
         } catch (WakeupException ignored) {
 
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error("Ошибка во время обработки событий от хаба]", e);
         } finally {
             try {
@@ -72,9 +78,9 @@ public class HubEventProcessor implements Runnable {
                 new OffsetAndMetadata(record.offset() + 1)
         );
 
-        if(count % 10 == 0) {
+        if (count % 10 == 0) {
             consumer.commitAsync(currentOffsets, (offsets, exception) -> {
-                if(exception != null) {
+                if (exception != null) {
                     log.warn("Ошибка во время фиксации оффсетов: {}", offsets, exception);
                 }
             });

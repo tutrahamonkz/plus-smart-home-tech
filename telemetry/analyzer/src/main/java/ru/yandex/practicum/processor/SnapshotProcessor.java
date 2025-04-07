@@ -1,6 +1,5 @@
 package ru.yandex.practicum.processor;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -20,7 +19,6 @@ import java.util.Map;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class SnapshotProcessor {
 
     private final KafkaConsumer<Void, SensorsSnapshotAvro> consumer;
@@ -33,9 +31,18 @@ public class SnapshotProcessor {
 
     private static final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
+    public SnapshotProcessor(KafkaConsumer<Void, SensorsSnapshotAvro> consumer, SnapshotServiceImpl snapshotService) {
+        this.consumer = consumer;
+        this.snapshotService = snapshotService;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
+    }
+
     public void start() {
-        List<String> topics = List.of(hubTopic);
+
         try {
+            Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
+            List<String> topics = List.of(hubTopic);
             consumer.subscribe(topics);
 
             while (true) {
