@@ -1,0 +1,36 @@
+grpc:
+  client:
+    hub-router:
+      address: 'static://localhost:59090'
+      enableKeepAlive: true
+      keepAliveWithoutCalls: true
+      negotiationType: plaintext
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:6541/smarthome
+    driver-class-name: org.postgresql.Driver
+    username: smart
+    password: home
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always
+
+kafka:
+  consumer:
+    bootstrap-servers: ${KAFKA_URL:localhost:9092}
+
+analyzer:
+  topic:
+    sensors:
+      v1: telemetry.sensors.v1
+    snapshots:
+      v1: telemetry.snapshots.v1
+    hubs:
+      v1: telemetry.hubs.v1
