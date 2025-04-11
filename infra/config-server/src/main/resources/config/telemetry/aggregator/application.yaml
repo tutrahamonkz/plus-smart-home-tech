@@ -1,0 +1,8 @@
+sensor:
+  topic: telemetry.sensors.v1
+
+snapshot:
+  topic: telemetry.snapshots.v1
+
+kafka:
+  url: ${KAFKA_URL:http://localhost:9092}
