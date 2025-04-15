@@ -1,3 +1,6 @@
+server:
+  port: 0
+
 spring:
   application:
     name: config-server
@@ -9,6 +12,7 @@ spring:
         native:
           search-locations:
             - classpath:config/telemetry/{application}
+            - classpath:config/commerce/{application}
       discovery:
         enabled: true
         service-id: config-server

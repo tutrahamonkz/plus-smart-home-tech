@@ -1,3 +1,6 @@
+server:
+  port: 0
+
 sensor:
   topic: telemetry.sensors.v1
 
