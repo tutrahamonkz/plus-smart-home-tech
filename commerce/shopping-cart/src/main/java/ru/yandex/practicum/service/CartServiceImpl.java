@@ -1,9 +1,13 @@
 package ru.yandex.practicum.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.dto.BookedProductsDto;
 import ru.yandex.practicum.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.dto.ShoppingCartDto;
+import ru.yandex.practicum.fallback.WarehouseClientFallback;
+import ru.yandex.practicum.feign.WarehouseClient;
 import ru.yandex.practicum.mapper.CartMapper;
 import ru.yandex.practicum.model.ShoppingCart;
 import ru.yandex.practicum.repository.CartRepository;
@@ -16,6 +20,8 @@ import java.util.Map;
 public class CartServiceImpl implements CartService {
 
     private final CartRepository cartRepository;
+    private final WarehouseClient warehouseClient;
+    private final WarehouseClientFallback warehouseClientFallback;
 
     @Override
     public ShoppingCartDto getShoppingCart(String userName) {
@@ -23,9 +29,11 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @CircuitBreaker(name = "warehouse", fallbackMethod = "fallbackCheck")
     public ShoppingCartDto addProductToCart(String userName, Map<String, Integer> products) {
         ShoppingCart cart = cartRepository.findByUserName(userName);
         cart.getProducts().putAll(products);
+        warehouseClient.check(CartMapper.toSoppingCartDto(cart));
         cartRepository.save(cart);
         return CartMapper.toSoppingCartDto(cart);
     }
@@ -53,5 +61,9 @@ public class CartServiceImpl implements CartService {
                 changeProductQuantityRequest.getNewQuantity());
         cartRepository.save(cart);
         return CartMapper.toSoppingCartDto(cart);
+    }
+
+    private BookedProductsDto fallbackCheck(ShoppingCartDto shoppingCartDto) {
+        return warehouseClientFallback.check(shoppingCartDto);
     }
 }

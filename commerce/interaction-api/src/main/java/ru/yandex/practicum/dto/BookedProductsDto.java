@@ -11,5 +11,5 @@ public class BookedProductsDto {
 
     private Double deliveryVolume;
 
-    private Double fragile;
+    private Boolean fragile;
 }
