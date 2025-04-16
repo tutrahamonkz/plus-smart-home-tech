@@ -30,3 +30,9 @@ resilience4j.circuitbreaker:
       slidingWindowType: COUNT_BASED
       minimumNumberOfCalls: 5
       automaticTransitionFromOpenToHalfOpenEnabled: true
+
+feign:
+  client:
+    config:
+      warehouse:
+        url: http://warehouse/api/v1/warehouse

@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Builder
 @Getter
 public class ProductDto {
 
     @NotBlank
-    private String productId;
+    private UUID productId;
     private String productName;
     private String description;
     private String imageSrc;

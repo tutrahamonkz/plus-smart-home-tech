@@ -4,7 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.yandex.practicum.dto.ProductCategory;
 import ru.yandex.practicum.dto.ProductDto;
-import ru.yandex.practicum.dto.UpdateQuantityState;
+import ru.yandex.practicum.dto.QuantityState;
+
+import java.util.UUID;
 
 public interface ProductService {
 
@@ -14,9 +16,9 @@ public interface ProductService {
 
     public ProductDto updateProduct(ProductDto product);
 
-    public Boolean removeProductFromStore(String productId);
+    public Boolean removeProductFromStore(UUID productId);
 
-    public Boolean quantityState(UpdateQuantityState quantity);
+    public Boolean quantityState(UUID productId, QuantityState quantity);
 
-    public ProductDto getProduct(String productId);
+    public ProductDto getProduct(UUID productId);
 }

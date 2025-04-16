@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.dto.ProductCategory;
 import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.dto.ProductState;
-import ru.yandex.practicum.dto.UpdateQuantityState;
+import ru.yandex.practicum.dto.QuantityState;
 import ru.yandex.practicum.mapper.ProductMapper;
 import ru.yandex.practicum.model.Product;
 import ru.yandex.practicum.repository.ProductRepository;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,28 +33,32 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductDto updateProduct(ProductDto productDto) {
-        Product product = productRepository.findById(productDto.getProductId());
+        Product product = findProductById(productDto.getProductId());
         return ProductMapper.toProductDto(productRepository.save(ProductMapper.updateToProduct(productDto, product)));
     }
 
     @Override
-    public Boolean removeProductFromStore(String productId) {
-        Product product = productRepository.findById(productId);
+    public Boolean removeProductFromStore(UUID productId) {
+        Product product = findProductById(productId);
         product.setProductState(ProductState.DEACTIVATE);
+        Product savedProduct = productRepository.save(product);
+        return savedProduct.getProductState() == ProductState.DEACTIVATE;
+    }
+
+    @Override
+    public Boolean quantityState(UUID productId, QuantityState quantity) {
+        Product product = findProductById(productId);
+        product.setQuantityState(quantity);
         productRepository.save(product);
         return true;
     }
 
     @Override
-    public Boolean quantityState(UpdateQuantityState quantity) {
-        Product product = productRepository.findById(quantity.getProductId());
-        product.setQuantityState(quantity.getQuantityState());
-        productRepository.save(product);
-        return true;
+    public ProductDto getProduct(UUID productId) {
+        return ProductMapper.toProductDto(findProductById(productId));
     }
 
-    @Override
-    public ProductDto getProduct(String productId) {
-        return ProductMapper.toProductDto(productRepository.findById(productId));
+    private Product findProductById(UUID productId) {
+        return productRepository.findById(productId);
     }
 }

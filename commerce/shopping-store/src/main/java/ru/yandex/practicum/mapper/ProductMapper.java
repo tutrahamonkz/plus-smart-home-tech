@@ -9,7 +9,7 @@ public class ProductMapper {
     public static ProductDto toProductDto(Product product) {
         return ProductDto.builder()
                 .productId(product.getId())
-                .productName(product.getName())
+                .productName(product.getProductName())
                 .description(product.getDescription())
                 .imageSrc(product.getImageSrc())
                 .quantityState(product.getQuantityState())
@@ -21,8 +21,7 @@ public class ProductMapper {
 
     public static Product toProduct(ProductDto productDto) {
         Product product = new Product();
-        product.setId(productDto.getProductId());
-        product.setName(productDto.getProductName());
+        product.setProductName(productDto.getProductName());
         product.setDescription(productDto.getDescription());
         product.setImageSrc(productDto.getImageSrc());
         product.setQuantityState(productDto.getQuantityState());
@@ -34,7 +33,7 @@ public class ProductMapper {
 
     public static Product updateToProduct(ProductDto productDto, Product product) {
         product.setId(productDto.getProductId());
-        product.setName(Optional.ofNullable(productDto.getProductName()).orElse(product.getName()));
+        product.setProductName(Optional.ofNullable(productDto.getProductName()).orElse(product.getProductName()));
         product.setDescription(Optional.ofNullable(productDto.getDescription()).orElse(product.getDescription()));
         product.setImageSrc(Optional.ofNullable(productDto.getImageSrc()).orElse(product.getImageSrc()));
         product.setQuantityState(Optional.ofNullable(productDto.getQuantityState()).orElse(product.getQuantityState()));

@@ -6,18 +6,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.ProductCategory;
 import ru.yandex.practicum.dto.ProductDto;
-import ru.yandex.practicum.dto.UpdateQuantityState;
+import ru.yandex.practicum.dto.QuantityState;
 import ru.yandex.practicum.service.ProductServiceImpl;
 
+import java.util.UUID;
+
 @RestController()
-@RequestMapping("/api/v1/shopping-store/")
+@RequestMapping("/api/v1/shopping-store")
 @RequiredArgsConstructor
 public class ProductController {
 
     private final ProductServiceImpl productService;
 
     @GetMapping()
-    public Page<ProductDto> getProducts(@RequestBody ProductCategory category, Pageable pageable) {
+    public Page<ProductDto> getProducts(@RequestParam ProductCategory category, Pageable pageable) {
         return productService.getProductsByCategory(category, pageable);
     }
 
@@ -32,17 +34,17 @@ public class ProductController {
     }
 
     @PostMapping("/removeProductFromStore")
-    public Boolean removeProductFromStore(@RequestBody String productId) {
+    public Boolean removeProductFromStore(@RequestBody UUID productId) {
         return productService.removeProductFromStore(productId);
     }
 
     @PostMapping("/quantityState")
-    public Boolean quantityState(@RequestBody UpdateQuantityState quantity) {
-        return productService.quantityState(quantity);
+    public Boolean quantityState(@RequestParam UUID productId, @RequestParam QuantityState quantity) {
+        return productService.quantityState(productId, quantity);
     }
 
     @GetMapping("/{productId}")
-    public ProductDto getProduct(@PathVariable String productId) {
+    public ProductDto getProduct(@PathVariable UUID productId) {
         return productService.getProduct(productId);
     }
 }

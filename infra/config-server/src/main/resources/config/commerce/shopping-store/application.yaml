@@ -16,3 +16,9 @@ spring:
   sql:
     init:
       mode: always
+
+logging:
+  level:
+    org:
+      zalando:
+        logbook: TRACE
