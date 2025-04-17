@@ -18,7 +18,7 @@ public interface ProductService {
 
     public Boolean removeProductFromStore(UUID productId);
 
-    public Boolean quantityState(UUID productId, QuantityState quantity);
+    public Boolean quantityState(UUID productId, QuantityState quantityState);
 
     public ProductDto getProduct(UUID productId);
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.ProductCategory;
 import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.dto.ProductState;
@@ -27,17 +28,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductDto createProduct(ProductDto productDto) {
         return ProductMapper.toProductDto(productRepository.save(ProductMapper.toProduct(productDto)));
     }
 
     @Override
+    @Transactional
     public ProductDto updateProduct(ProductDto productDto) {
         Product product = findProductById(productDto.getProductId());
         return ProductMapper.toProductDto(productRepository.save(ProductMapper.updateToProduct(productDto, product)));
     }
 
     @Override
+    @Transactional
     public Boolean removeProductFromStore(UUID productId) {
         Product product = findProductById(productId);
         product.setProductState(ProductState.DEACTIVATE);
@@ -46,11 +50,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean quantityState(UUID productId, QuantityState quantity) {
+    @Transactional
+    public Boolean quantityState(UUID productId, QuantityState quantityState) {
         Product product = findProductById(productId);
-        product.setQuantityState(quantity);
+        product.setQuantityState(quantityState);
         productRepository.save(product);
-        return true;
+        Product savedProduct = productRepository.findById(productId);
+        return savedProduct.getQuantityState() == quantityState;
     }
 
     @Override

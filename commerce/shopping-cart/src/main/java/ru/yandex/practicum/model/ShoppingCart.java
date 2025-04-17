@@ -13,7 +13,8 @@ import java.util.Map;
 public class ShoppingCart {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "user_name")
     private String userName;

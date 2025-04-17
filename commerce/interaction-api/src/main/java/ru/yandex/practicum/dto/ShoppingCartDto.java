@@ -9,7 +9,7 @@ import java.util.Map;
 @Builder
 public class ShoppingCartDto {
 
-    String shoppingCartId;
+    private Long shoppingCartId;
 
-    Map<String, Integer> products;
+    private Map<String, Integer> products;
 }

@@ -39,8 +39,8 @@ public class ProductController {
     }
 
     @PostMapping("/quantityState")
-    public Boolean quantityState(@RequestParam UUID productId, @RequestParam QuantityState quantity) {
-        return productService.quantityState(productId, quantity);
+    public Boolean quantityState(@RequestParam UUID productId, @RequestParam QuantityState quantityState) {
+        return productService.quantityState(productId, quantityState);
     }
 
     @GetMapping("/{productId}")

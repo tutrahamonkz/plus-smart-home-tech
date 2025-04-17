@@ -2,11 +2,15 @@ package ru.yandex.practicum.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.mapper.WarehouseMapper;
+import ru.yandex.practicum.model.Address;
 import ru.yandex.practicum.model.Warehouse;
 import ru.yandex.practicum.model.WarehouseProduct;
+import ru.yandex.practicum.repository.AddressRepository;
+import ru.yandex.practicum.repository.WarehouseProductRepository;
 import ru.yandex.practicum.repository.WarehouseRepository;
 
 import java.security.SecureRandom;
@@ -26,13 +30,29 @@ public class WarehouseServiceImpl implements WarehouseService {
             ADDRESSES[Random.from(new SecureRandom()).nextInt(0, 1)];
 
     private final WarehouseRepository warehouseRepository;
+    private final WarehouseProductRepository warehouseProductRepository;
+    private final AddressRepository addressRepository;
 
     @Override
+    @Transactional
     public void addProduct(NewProductInWarehouseRequest product) {
-        Warehouse warehouse = warehouseRepository.findAll().getFirst();
+        List<Warehouse> warehouses = warehouseRepository.findAll();
+        Warehouse warehouse;
+        if (warehouses.isEmpty()) {
+            warehouse = new Warehouse();
+            Address address = addressRepository.save(getAddressRandom());
+            warehouse.setAddress(address);
+            warehouse.setProducts(new ArrayList<>());
+            warehouseRepository.save(warehouse);
+        } else {
+            warehouse = warehouses.getFirst();
+        }
+
         List<WarehouseProduct> products = warehouse.getProducts();
         WarehouseProduct warehouseProduct = WarehouseMapper.toWarehouseProduct(product);
-        products.add(warehouseProduct);
+        warehouseProduct.setQuantity(0);
+        WarehouseProduct savedProduct = warehouseProductRepository.save(warehouseProduct);
+        products.add(savedProduct);
         warehouseRepository.save(warehouse);
     }
 
@@ -77,6 +97,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
+    @Transactional
     public void addProductQuantity(AddProductToWarehouseRequest productQuantity) {
         Warehouse warehouse = warehouseRepository.findAll().getFirst();
         List<WarehouseProduct> products = warehouse.getProducts();
@@ -90,14 +111,17 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public AddressDto getAddress() {
-        String address = CURRENT_ADDRESS;
-        return AddressDto.builder()
-                .country(address)
-                .city(address)
-                .street(address)
-                .house(address)
-                .flat(address)
-                .build();
-        //return WarehouseMapper.toAddressDto(warehouseRepository.findAll().getFirst());
+        return WarehouseMapper.toAddressDto(warehouseRepository.findAll().getFirst());
+    }
+
+    private Address getAddressRandom() {
+        String randomAddress = CURRENT_ADDRESS;
+        Address address = new Address();
+        address.setCountry(randomAddress);
+        address.setCity(randomAddress);
+        address.setStreet(randomAddress);
+        address.setHouse(randomAddress);
+        address.setFlat(randomAddress);
+        return address;
     }
 }

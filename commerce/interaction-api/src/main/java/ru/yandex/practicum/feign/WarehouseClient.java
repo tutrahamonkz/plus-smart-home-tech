@@ -11,15 +11,15 @@ import ru.yandex.practicum.dto.*;
 @FeignClient(name = "warehouse")
 public interface WarehouseClient {
 
-    @PutMapping
+    @PutMapping("/api/v1/warehouse")
     void addProduct(@RequestBody NewProductInWarehouseRequest product);
 
-    @PostMapping("/check")
+    @PostMapping("/api/v1/warehouse/check")
     BookedProductsDto check(@RequestBody ShoppingCartDto shoppingCartDto);
 
-    @PostMapping("/add")
+    @PostMapping("/api/v1/warehouse/add")
     void addProductQuantity(@Validated @RequestBody AddProductToWarehouseRequest productQuantity);
 
-    @GetMapping("/address")
+    @GetMapping("/api/v1/warehouse/address")
     AddressDto getAddress();
 }
