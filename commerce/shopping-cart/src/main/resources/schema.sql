@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS shopping_carts (
 
 CREATE TABLE IF NOT EXISTS cart_products (
     cart_id BIGINT REFERENCES shopping_carts(id),
-    product_id VARCHAR,
+    product_id UUID,
     quantity INTEGER
 )

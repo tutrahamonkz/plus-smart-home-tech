@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS warehouses (
 );
 
 CREATE TABLE IF NOT EXISTS warehouse_products (
-    id VARCHAR PRIMARY KEY,
+    id UUID PRIMARY KEY,
     fragile BOOLEAN,
     weight DOUBLE PRECISION,
     width DOUBLE PRECISION,
@@ -24,6 +24,6 @@ CREATE TABLE IF NOT EXISTS warehouse_products (
 
 CREATE TABLE IF NOT EXISTS warehouses_warehouse_products (
     warehouse_id BIGINT REFERENCES warehouses(id),
-    warehouse_product_id varchar REFERENCES warehouse_products(id),
+    warehouse_product_id UUID REFERENCES warehouse_products(id),
     CONSTRAINT pk_warehouses_warehouse_products PRIMARY KEY (warehouse_id, warehouse_product_id)
 );

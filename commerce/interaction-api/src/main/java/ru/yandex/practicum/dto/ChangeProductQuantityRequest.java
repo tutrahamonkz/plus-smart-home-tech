@@ -1,11 +1,15 @@
 package ru.yandex.practicum.dto;
 
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
+
+import java.util.UUID;
 
 @Getter
 public class ChangeProductQuantityRequest {
 
-    String productId;
+    private UUID productId;
 
-    Integer newQuantity;
+    @Min(1)
+    private Integer newQuantity;
 }

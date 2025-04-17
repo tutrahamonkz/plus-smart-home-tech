@@ -6,6 +6,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -13,7 +15,7 @@ import lombok.Setter;
 public class WarehouseProduct {
 
     @Id
-    private String id;
+    private UUID id;
 
     private Boolean fragile;
 
