@@ -87,8 +87,8 @@ public class WarehouseServiceImpl implements WarehouseService {
                     "количестве: " + response);
         }
         boolean fragile = false;
-        Double deliveryWeight = null;
-        Double deliveryVolume = null;
+        double deliveryWeight = 0.0;
+        double deliveryVolume = 0.0;
         for (WarehouseProduct product : productsHave) {
             if (!fragile && product.getFragile()) {
                 fragile = true;
