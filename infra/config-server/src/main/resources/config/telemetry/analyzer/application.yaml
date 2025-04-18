@@ -11,10 +11,10 @@ grpc:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:6541/smarthome
+    url: jdbc:postgresql://localhost:6541/analyzer
     driver-class-name: org.postgresql.Driver
-    username: smart
-    password: home
+    username: analyzer_user
+    password: password1
   jpa:
     hibernate:
       ddl-auto: none

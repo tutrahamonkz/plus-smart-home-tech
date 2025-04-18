@@ -3,10 +3,10 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:6541/smarthome
+    url: jdbc:postgresql://localhost:6541/store
     driver-class-name: org.postgresql.Driver
-    username: smart
-    password: home
+    username: store_user
+    password: password2
   jpa:
     hibernate:
       ddl-auto: none
