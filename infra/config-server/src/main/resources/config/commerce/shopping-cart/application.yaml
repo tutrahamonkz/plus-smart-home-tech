@@ -17,16 +17,17 @@ spring:
     init:
       mode: always
 
-resilience4j.circuitbreaker:
-  configs:
-    default:
-      slidingWindowSize: 50
-      failureRateThreshold: 50
-  instances:
-    warehouse:
-      slidingWindowSize: 10
-      waitDurationInOpenState: 10000
-      permittedNumberOfCallsInHalfOpenState: 3
-      slidingWindowType: COUNT_BASED
-      minimumNumberOfCalls: 5
-      automaticTransitionFromOpenToHalfOpenEnabled: true
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 50
+        failure-rate-threshold: 50
+    instances:
+      warehouse:
+        sliding-window-size: 10
+        wait-duration-in-open-state: 10000
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-type: COUNT_BASED
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
