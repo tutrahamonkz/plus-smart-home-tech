@@ -1,36 +1,19 @@
-grpc:
-  client:
-    hub-router:
-      address: 'static://localhost:59090'
-      enableKeepAlive: true
-      keepAliveWithoutCalls: true
-      negotiationType: plaintext
-
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:6541/smarthome
-    driver-class-name: org.postgresql.Driver
-    username: smart
-    password: home
-  jpa:
-    hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-        format_sql: true
-  sql:
-    init:
-      mode: always
+  application:
+    name: analyzer
+  config:
+    import: "configserver:"
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        use-random-policy: true
+        max-interval: 6000
+      discovery:
+        enabled: true
+        service-id: config-server
 
-kafka:
-  consumer:
-    bootstrap-servers: ${KAFKA_URL:localhost:9092}
-
-analyzer:
-  topic:
-    sensors:
-      v1: telemetry.sensors.v1
-    snapshots:
-      v1: telemetry.snapshots.v1
-    hubs:
-      v1: telemetry.hubs.v1
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${eureka.instance.hostname:localhost}:${eureka.instance.port:8761}/eureka/
