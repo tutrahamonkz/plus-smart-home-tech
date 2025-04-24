@@ -8,19 +8,20 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.dto.*;
 
-@FeignClient(name = "warehouse", fallback = WarehouseClientFallback.class)
-//@CircuitBreaker(name = "warehouse")
+@FeignClient(name = "warehouse",
+        fallbackFactory = WarehouseClientFallbackFactory.class,
+        path = "/api/v1/warehouse")
 public interface WarehouseClient {
 
-    @PutMapping("/api/v1/warehouse")
+    @PutMapping()
     void addProduct(@RequestBody NewProductInWarehouseRequest product);
 
-    @PostMapping("/api/v1/warehouse/check")
+    @PostMapping("check")
     BookedProductsDto check(@RequestBody ShoppingCartDto shoppingCartDto);
 
-    @PostMapping("/api/v1/warehouse/add")
+    @PostMapping("add")
     void addProductQuantity(@Validated @RequestBody AddProductToWarehouseRequest productQuantity);
 
-    @GetMapping("/api/v1/warehouse/address")
+    @GetMapping("address")
     AddressDto getAddress();
 }

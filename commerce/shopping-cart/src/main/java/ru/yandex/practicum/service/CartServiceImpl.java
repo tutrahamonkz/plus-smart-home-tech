@@ -4,18 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.dto.BookedProductsDto;
 import ru.yandex.practicum.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.exception.NoProductsInShoppingCartException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
-import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.feign.WarehouseClient;
 import ru.yandex.practicum.mapper.CartMapper;
 import ru.yandex.practicum.model.ShoppingCart;
 import ru.yandex.practicum.repository.CartRepository;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -39,14 +40,7 @@ public class CartServiceImpl implements CartService {
         ShoppingCart cart = getOrCreateShoppingCart(userName);
         cart.getProducts().putAll(products);
 
-        //try {
-            if (checkStock(CartMapper.toSoppingCartDto(cart)).isEmpty()) {
-                throw new ProductInShoppingCartLowQuantityInWarehouse("Не достаточно товара на складе");
-            }
-        /*} catch (FeignException e) {
-            log.error("Ошибка при обращении к складу: {}", e.getMessage());
-            throw new ProductInShoppingCartLowQuantityInWarehouse(e.getMessage());
-        }*/
+        warehouseClient.check(CartMapper.toSoppingCartDto(cart));
 
         cartRepository.save(cart);
         log.info("Добавили продукты {} в корзину пользователя: {}", products, userName);
@@ -101,10 +95,6 @@ public class CartServiceImpl implements CartService {
         if (userName == null) {
             throw new NotAuthorizedUserException("Имя пользователя не должно быть пустым");
         }
-    }
-
-    private Optional<BookedProductsDto> checkStock(ShoppingCartDto shoppingCartDto) {
-        return Optional.ofNullable(warehouseClient.check(shoppingCartDto));
     }
 
     private ShoppingCart getOrCreateShoppingCart(String userName) {
