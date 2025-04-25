@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: shopping_cart_service_route
+          uri: lb://shopping-cart
+          predicates:
+            - Path=/shopping-cart/**
+          filters:
+            - PrefixPath=/api/v1
+        - id: shopping_store_service_route
+          uri: lb://shopping-store
+          predicates:
+            - Path=/shopping-store/**
+          filters:
+            - PrefixPath=/api/v1
+            - name: Retry
+              args:
+                retries: 3
+                statuses: NOT_FOUND
+                methods: GET
+                exceptions: ru.yandex.practicum.exception.ProductNotFoundException
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud.gateway: TRACE
