@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ProductInShoppingCartLowQuantityInWarehouse.class)
-    public ResponseEntity<String> handleProductQuantityException(ProductInShoppingCartLowQuantityInWarehouse e) {
-        return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ProductInShoppingCartLowQuantityInWarehouse> handleProductQuantityException(ProductInShoppingCartLowQuantityInWarehouse e) {
+        return new ResponseEntity<>(e, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotAuthorizedUserException.class)
@@ -36,5 +36,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSpecifiedProductInWarehouseException.class)
     public ResponseEntity<String> handleNoProductInWarehouseException(NoSpecifiedProductInWarehouseException e) {
         return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ServiceTemporarilyUnavailable.class)
+    public ResponseEntity<String> handleServiceTemporarilyUnavailableException(ServiceTemporarilyUnavailable e) {
+        return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

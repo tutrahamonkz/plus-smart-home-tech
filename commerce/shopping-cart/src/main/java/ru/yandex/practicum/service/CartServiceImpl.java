@@ -1,18 +1,13 @@
 package ru.yandex.practicum.service;
 
-import feign.FeignException;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.dto.BookedProductsDto;
 import ru.yandex.practicum.dto.ChangeProductQuantityRequest;
 import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.exception.NoProductsInShoppingCartException;
 import ru.yandex.practicum.exception.NotAuthorizedUserException;
-import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
-import ru.yandex.practicum.exception.ServiceTemporarilyUnavailable;
 import ru.yandex.practicum.feign.WarehouseClient;
 import ru.yandex.practicum.mapper.CartMapper;
 import ru.yandex.practicum.model.ShoppingCart;
@@ -45,12 +40,7 @@ public class CartServiceImpl implements CartService {
         ShoppingCart cart = getOrCreateShoppingCart(userName);
         cart.getProducts().putAll(products);
 
-        try {
-            checkStock(CartMapper.toSoppingCartDto(cart));
-        } catch (FeignException e) {
-            log.error("Ошибка при обращении к складу: {}", e.getMessage());
-            throw new ProductInShoppingCartLowQuantityInWarehouse(e.getMessage());
-        }
+        warehouseClient.check(CartMapper.toSoppingCartDto(cart));
 
         cartRepository.save(cart);
         log.info("Добавили продукты {} в корзину пользователя: {}", products, userName);
@@ -105,15 +95,6 @@ public class CartServiceImpl implements CartService {
         if (userName == null) {
             throw new NotAuthorizedUserException("Имя пользователя не должно быть пустым");
         }
-    }
-
-    @CircuitBreaker(name = "warehouse", fallbackMethod = "fallbackCheckStock")
-    private BookedProductsDto checkStock(ShoppingCartDto shoppingCartDto) {
-        return warehouseClient.check(shoppingCartDto);
-    }
-
-    private BookedProductsDto fallbackCheckStock(ShoppingCartDto shoppingCartDto) {
-        throw new ServiceTemporarilyUnavailable("Сервер склада временно недоступен");
     }
 
     private ShoppingCart getOrCreateShoppingCart(String userName) {
