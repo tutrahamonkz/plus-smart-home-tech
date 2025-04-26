@@ -28,9 +28,9 @@ public class OrderDto {
 
     private Boolean fragile;
 
-    private Integer totalPrice;
+    private Double totalPrice;
 
-    private Integer deliveryPrice;
+    private Double deliveryPrice;
 
-    private Integer productPrice;
+    private Double productPrice;
 }

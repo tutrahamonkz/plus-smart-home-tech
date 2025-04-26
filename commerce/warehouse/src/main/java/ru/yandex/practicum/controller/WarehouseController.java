@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.service.WarehouseService;
 
+import java.util.Map;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/warehouse")
 @RequiredArgsConstructor
@@ -31,5 +34,20 @@ public class WarehouseController {
     @GetMapping("/address")
     public AddressDto getAddress() {
         return warehouseService.getAddress();
+    }
+
+    @PostMapping("/shipped")
+    public void shipped(@RequestBody ShippedToDeliveryRequest shippedToDeliveryRequest) {
+        warehouseService.shipped(shippedToDeliveryRequest);
+    }
+
+    @PostMapping("/return")
+    public void returnProduct(@RequestBody Map<UUID, Integer> returnMap) {
+        warehouseService.returnProduct(returnMap);
+    }
+
+    @PostMapping("/assembly")
+    public BookedProductsDto assemblyProduct(@RequestBody AssemblyProductsForOrderRequest request) {
+        return warehouseService.assemblyProduct(request);
     }
 }

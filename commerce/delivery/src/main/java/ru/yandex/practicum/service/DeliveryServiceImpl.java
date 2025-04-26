@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.dto.DeliveryDto;
 import ru.yandex.practicum.dto.DeliveryState;
 import ru.yandex.practicum.dto.OrderDto;
+import ru.yandex.practicum.dto.ShippedToDeliveryRequest;
 import ru.yandex.practicum.exception.NoDeliveryFoundException;
 import ru.yandex.practicum.feign.WarehouseClient;
 import ru.yandex.practicum.mapper.DeliveryMapper;
@@ -37,7 +38,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     public void successfulDelivery(UUID orderId) {
         final Delivery delivery = findDeliveryById(orderId);
         delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
-        warehouseClient.shipped(shippedToDeliveryRequest(orderId, delivery.getDeliveryId()));
+        ShippedToDeliveryRequest request = ShippedToDeliveryRequest.builder()
+                .orderId(orderId)
+                .deliveryId(delivery.getDeliveryId())
+                .build();
+        warehouseClient.shipped(request);
         deliveryRepository.save(delivery);
     }
 
@@ -73,7 +78,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         result += orderDto.getDeliveryVolume() * 0.2;
 
         if (orderDto.getDeliveryId() != UUID.fromString("ADDRESS_3")) {
-            result =+ result * 0.2;
+            result = +result * 0.2;
         }
 
         return ResponseEntity.ok(result);
