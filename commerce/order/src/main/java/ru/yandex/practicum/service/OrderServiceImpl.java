@@ -1,13 +1,18 @@
 package ru.yandex.practicum.service;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.dto.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.dto.CreateNewOrderRequest;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.dto.ProductReturnRequest;
 import ru.yandex.practicum.exception.NoOrderFoundException;
+import ru.yandex.practicum.feign.DeliveryClient;
+import ru.yandex.practicum.feign.PaymentClient;
+import ru.yandex.practicum.feign.WarehouseClient;
 import ru.yandex.practicum.mapper.OrderMapper;
 import ru.yandex.practicum.model.Order;
 import ru.yandex.practicum.repository.OrderRepository;
@@ -21,16 +26,27 @@ import java.util.UUID;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private final DeliveryClient deliveryClient;
+    private final PaymentClient paymentClient;
+    private final WarehouseClient warehouseClient;
 
     @Override
     public ResponseEntity<List<OrderDto>> findAllOrders(String userName) {
+        if (userName.isBlank()) {
+            throw new NotAuthorizedException("User is not authorized");
+        }
         return ResponseEntity.ok(OrderMapper.mapToOrderDtoList(orderRepository.findAllByUserName(userName)));
     }
 
     @Override
     public ResponseEntity<OrderDto> createOrder(CreateNewOrderRequest createNewOrderRequest) {
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(OrderMapper
-                .mapToOrder(createNewOrderRequest))));
+        Order order = orderRepository.save(OrderMapper.mapToOrder(createNewOrderRequest));
+        AssemblyProductsForOrderRequest assemblyProductsForOrderRequest = AssemblyProductsForOrderRequest.builder()
+                .products(createNewOrderRequest.getShoppingCart().getProducts())
+                .orderId(order.getOrderId())
+                .build();
+        warehouseClient.assemblyProduct(assemblyProductsForOrderRequest);
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
     }
 
     @Override
@@ -41,6 +57,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ResponseEntity<OrderDto> paymentOrder(UUID orderId) {
         Order order = findOrderById(orderId);
+
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
     }
 

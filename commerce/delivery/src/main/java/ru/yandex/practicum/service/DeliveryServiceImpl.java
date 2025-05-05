@@ -9,6 +9,7 @@ import ru.yandex.practicum.dto.DeliveryState;
 import ru.yandex.practicum.dto.OrderDto;
 import ru.yandex.practicum.dto.ShippedToDeliveryRequest;
 import ru.yandex.practicum.exception.NoDeliveryFoundException;
+import ru.yandex.practicum.feign.OrderClient;
 import ru.yandex.practicum.feign.WarehouseClient;
 import ru.yandex.practicum.mapper.DeliveryMapper;
 import ru.yandex.practicum.model.Delivery;
@@ -25,6 +26,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final DeliveryRepository deliveryRepository;
     private final WarehouseClient warehouseClient;
+    private final OrderClient orderClient;
 
     @Override
     @Transactional
@@ -51,6 +53,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public void pickedDelivery(UUID orderId) {
         final Delivery delivery = findDeliveryById(orderId);
         delivery.setDeliveryState(DeliveryState.DELIVERED);
+        orderClient.deliveryOrder(orderId);
         deliveryRepository.save(delivery);
     }
 
@@ -59,6 +62,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public void failedDelivery(UUID orderId) {
         final Delivery delivery = findDeliveryById(orderId);
         delivery.setDeliveryState(DeliveryState.FAILED);
+        orderClient.deliveryFailedOrder(orderId);
         deliveryRepository.save(delivery);
     }
 

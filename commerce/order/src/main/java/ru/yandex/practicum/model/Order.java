@@ -47,13 +47,13 @@ public class Order {
     private Boolean fragile;
 
     @Column(name = "total_price")
-    private Integer totalPrice;
+    private Double totalPrice;
 
     @Column(name = "delivery_price")
-    private Integer deliveryPrice;
+    private Double deliveryPrice;
 
     @Column(name = "product_price")
-    private Integer productPrice;
+    private Double productPrice;
 
     @Column(name = "user_name")
     private String userName;

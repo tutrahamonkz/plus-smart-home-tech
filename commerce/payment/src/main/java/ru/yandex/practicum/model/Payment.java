@@ -19,6 +19,9 @@ public class Payment {
     @Column(name = "payment_id")
     private UUID paymentId;
 
+    @Column(name = "order_id")
+    private UUID orderId;
+
     @Column(name = "total_payment")
     private Double totalPayment;
 
@@ -27,4 +30,7 @@ public class Payment {
 
     @Column(name = "fee_total")
     private Double feeTotal;
+
+    @Column(name = "state")
+    private PaymentState state;
 }
