@@ -27,5 +27,5 @@ public interface DeliveryClient {
     void failedDelivery(@RequestBody UUID orderId);
 
     @PostMapping("/post")
-    ResponseEntity<Double> postDelivery(@RequestBody OrderDto orderDto);
+    ResponseEntity<Double> costDelivery(@RequestBody OrderDto orderDto);
 }

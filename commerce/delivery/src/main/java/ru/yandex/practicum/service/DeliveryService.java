@@ -16,5 +16,5 @@ public interface DeliveryService {
 
     void failedDelivery(UUID orderId);
 
-    ResponseEntity<Double> postDelivery(OrderDto orderDto);
+    ResponseEntity<Double> costDelivery(OrderDto orderDto);
 }

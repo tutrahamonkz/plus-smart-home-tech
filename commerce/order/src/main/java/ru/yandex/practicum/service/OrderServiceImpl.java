@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.dto.AssemblyProductsForOrderRequest;
-import ru.yandex.practicum.dto.CreateNewOrderRequest;
-import ru.yandex.practicum.dto.OrderDto;
-import ru.yandex.practicum.dto.ProductReturnRequest;
+import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.exception.NoOrderFoundException;
 import ru.yandex.practicum.feign.DeliveryClient;
 import ru.yandex.practicum.feign.PaymentClient;
@@ -39,74 +36,127 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> createOrder(CreateNewOrderRequest createNewOrderRequest) {
         Order order = orderRepository.save(OrderMapper.mapToOrder(createNewOrderRequest));
-        AssemblyProductsForOrderRequest assemblyProductsForOrderRequest = AssemblyProductsForOrderRequest.builder()
-                .products(createNewOrderRequest.getShoppingCart().getProducts())
+        order.setState(OrderState.NEW);
+
+        BookedProductsDto bookedProductsDto = warehouseClient.check(createNewOrderRequest.getShoppingCart());
+
+        DeliveryDto newDeliveryDto = DeliveryDto.builder()
                 .orderId(order.getOrderId())
+                .fromAddress(createNewOrderRequest.getDeliveryAddress())
+                .toAddress(warehouseClient.getAddress())
+                .deliveryState(DeliveryState.CREATED)
                 .build();
-        warehouseClient.assemblyProduct(assemblyProductsForOrderRequest);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+
+        DeliveryDto deliveryDto = deliveryClient.createDelivery(newDeliveryDto).getBody();
+
+        order.setDeliveryId(deliveryDto.getDeliveryId());
+        order.setDeliveryWeight(bookedProductsDto.getDeliveryWeight());
+        order.setDeliveryVolume(bookedProductsDto.getDeliveryVolume());
+        order.setDeliveryPrice(deliveryClient.costDelivery(OrderMapper.mapToOrderDto(order)).getBody());
+
+        order.setProductPrice(paymentClient.calculateProductCost(OrderMapper.mapToOrderDto(order)).getBody());
+        order.setTotalPrice(paymentClient.calculateTotalCost(OrderMapper.mapToOrderDto(order)).getBody());
+
+        PaymentDto newPaymentDto = paymentClient.createPayment(OrderMapper.mapToOrderDto(order)).getBody();
+
+        order.setPaymentId(newPaymentDto.getPaymentId());
+
+        Order savedOrder = orderRepository.save(order);
+
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(savedOrder));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> returnOrder(ProductReturnRequest productReturnRequest) {
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(findOrderById(productReturnRequest.getOrderId())));
+        warehouseClient.returnProduct(productReturnRequest.getProducts());
+        Order order = findOrderById(productReturnRequest.getOrderId());
+        order.setState(OrderState.PRODUCT_RETURNED);
+        orderRepository.save(order);
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> paymentOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        order.setState(OrderState.PAID);
+        paymentClient.refund(order.getPaymentId());
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> paymentFailedOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        order.setState(OrderState.PAYMENT_FAILED);
+        paymentClient.failed(order.getPaymentId());
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> deliveryOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        order.setState(OrderState.DELIVERED);
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> deliveryFailedOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        order.setState(OrderState.DELIVERY_FAILED);
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> completedOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        order.setState(OrderState.COMPLETED);
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> calculateTotalOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        order.setTotalPrice(paymentClient.calculateTotalCost(OrderMapper.mapToOrderDto(order)).getBody());
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> calculateDeliveryOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        order.setDeliveryPrice(deliveryClient.costDelivery(OrderMapper.mapToOrderDto(order)).getBody());
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> assemblyOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        warehouseClient.assemblyProduct(
+                AssemblyProductsForOrderRequest.builder()
+                        .orderId(orderId)
+                        .products(order.getProducts())
+                        .build()
+        );
+        order.setState(OrderState.ASSEMBLED);
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
+    @Transactional
     public ResponseEntity<OrderDto> assemblyFailedOrder(UUID orderId) {
         Order order = findOrderById(orderId);
-        return ResponseEntity.ok(OrderMapper.mapToOrderDto(order));
+        order.setState(OrderState.ASSEMBLY_FAILED);
+        return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     private Order findOrderById(UUID orderId) {

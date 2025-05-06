@@ -2,12 +2,9 @@ package ru.yandex.practicum.mapper;
 
 import ru.yandex.practicum.dto.CreateNewOrderRequest;
 import ru.yandex.practicum.dto.OrderDto;
-import ru.yandex.practicum.dto.OrderState;
 import ru.yandex.practicum.model.Order;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 public class OrderMapper {
 
@@ -36,9 +33,7 @@ public class OrderMapper {
         Order order = new Order();
 
         order.setShoppingCartId(createNewOrderRequest.getShoppingCart().getShoppingCartId());
-        order.setDeliveryId(UUID.fromString(createNewOrderRequest.getDeliveryAddress().getCity()));
-        order.setProducts(new HashMap<>());
-        order.setState(OrderState.NEW);
+        order.setProducts(createNewOrderRequest.getShoppingCart().getProducts());
 
         return order;
     }

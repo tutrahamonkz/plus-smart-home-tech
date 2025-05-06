@@ -7,6 +7,9 @@ import ru.yandex.practicum.dto.*;
 import ru.yandex.practicum.exception.ProductInShoppingCartLowQuantityInWarehouse;
 import ru.yandex.practicum.exception.ServiceTemporarilyUnavailable;
 
+import java.util.Map;
+import java.util.UUID;
+
 @Component
 public class WarehouseClientFallbackFactory implements FallbackFactory<WarehouseClient> {
 
@@ -33,6 +36,21 @@ public class WarehouseClientFallbackFactory implements FallbackFactory<Warehouse
 
             @Override
             public AddressDto getAddress() {
+                throw new ServiceTemporarilyUnavailable("Сервер склада недоступен");
+            }
+
+            @Override
+            public void shipped(ShippedToDeliveryRequest shippedToDeliveryRequest) {
+                throw new ServiceTemporarilyUnavailable("Сервер склада недоступен");
+            }
+
+            @Override
+            public void returnProduct(Map<UUID, Integer> returnMap) {
+                throw new ServiceTemporarilyUnavailable("Сервер склада недоступен");
+            }
+
+            @Override
+            public BookedProductsDto assemblyProduct(AssemblyProductsForOrderRequest request) {
                 throw new ServiceTemporarilyUnavailable("Сервер склада недоступен");
             }
         };

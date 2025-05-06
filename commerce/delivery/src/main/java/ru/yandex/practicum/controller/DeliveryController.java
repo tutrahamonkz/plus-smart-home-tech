@@ -36,8 +36,8 @@ public class DeliveryController {
         deliveryService.failedDelivery(orderId);
     }
 
-    @PostMapping("/post")
-    public ResponseEntity<Double> postDelivery(@RequestBody OrderDto orderDto) {
-        return deliveryService.postDelivery(orderDto);
+    @PostMapping("/cost")
+    public ResponseEntity<Double> costDelivery(@RequestBody OrderDto orderDto) {
+        return deliveryService.costDelivery(orderDto);
     }
 }

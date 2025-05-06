@@ -10,7 +10,7 @@ import ru.yandex.practicum.dto.ProductReturnRequest;
 import java.util.List;
 import java.util.UUID;
 
-@FeignClient(name = "payment",
+@FeignClient(name = "order",
         path = "/api/v1/order")
 public interface OrderClient {
 

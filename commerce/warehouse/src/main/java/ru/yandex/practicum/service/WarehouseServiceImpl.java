@@ -137,7 +137,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public void returnProduct(Map<UUID, Integer> returnMap) {
-        List<WarehouseProduct> products = warehouseProductRepository.findAllById(returnMap.keySet());
+        List<WarehouseProduct> products = warehouseProductRepository.findAllByIdIn(new ArrayList<>(returnMap.keySet()));
         products.forEach(product -> {
             product.setQuantity(product.getQuantity() + returnMap.get(product.getId()));
         });

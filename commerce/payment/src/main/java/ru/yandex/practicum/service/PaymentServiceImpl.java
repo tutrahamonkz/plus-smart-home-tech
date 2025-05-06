@@ -27,6 +27,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderClient orderClient;
 
     @Override
+    @Transactional
     public ResponseEntity<PaymentDto> createPayment(OrderDto order) {
         Payment payment = PaymentMapper.mapToPayment(order);
         payment.setState(PaymentState.PENDING);
@@ -36,7 +37,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public ResponseEntity<Double> calculateTotalCost(OrderDto order) {
         var totalCost = 0.0;
-        Double productCost = calculateProductCost(order).getBody();
+        Double productCost = order.getProductPrice();
         totalCost += productCost + productCost * 0.1;
         totalCost += order.getDeliveryPrice();
 
@@ -44,6 +45,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public void refund(UUID paymentId) {
         Payment payment = findPaymentById(paymentId);
         payment.setState(PaymentState.SUCCESS);
@@ -62,6 +64,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public void failed(UUID paymentId) {
         Payment payment = findPaymentById(paymentId);
         payment.setState(PaymentState.FAILED);

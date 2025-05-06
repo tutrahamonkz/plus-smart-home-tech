@@ -18,11 +18,13 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID deliveryId;
 
-    @Column(name = "from_address")
-    private UUID fromAddress;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "from_address", referencedColumnName = "id")
+    private Address fromAddress;
 
-    @Column(name = "to_address")
-    private UUID toAddress;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "to_address", referencedColumnName = "id")
+    private Address toAddress;
 
     @Column(name = "order_id")
     private UUID orderId;
