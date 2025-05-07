@@ -1,6 +1,7 @@
 package ru.yandex.practicum.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +16,17 @@ import ru.yandex.practicum.model.Payment;
 import ru.yandex.practicum.model.PaymentState;
 import ru.yandex.practicum.repository.PaymentRepository;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
+
+    private static final Double NDS = 10.0;
 
     private final PaymentRepository paymentRepository;
     private final StoreClient storeClient;
@@ -29,6 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public ResponseEntity<PaymentDto> createPayment(OrderDto order) {
+        log.info("Create payment for order: {}", order);
         Payment payment = PaymentMapper.mapToPayment(order);
         payment.setState(PaymentState.PENDING);
         return ResponseEntity.ok(PaymentMapper.maptoPaymentDto(paymentRepository.save(payment)));
@@ -36,10 +43,10 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public ResponseEntity<Double> calculateTotalCost(OrderDto order) {
-        var totalCost = 0.0;
-        Double productCost = order.getProductPrice();
-        totalCost += productCost + productCost * 0.1;
-        totalCost += order.getDeliveryPrice();
+        log.info("Calculate total cost for order: {}", order);
+        Double totalCost = order.getProductPrice(); // Добавляем стоимость товаров
+        totalCost += totalCost * NDS; // Добавляем НДС
+        totalCost += order.getDeliveryPrice(); // Добавляем стоимость доставки
 
         return ResponseEntity.ok(totalCost);
     }
@@ -47,6 +54,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void refund(UUID paymentId) {
+        log.info("Refund payment: {}", paymentId);
         Payment payment = findPaymentById(paymentId);
         payment.setState(PaymentState.SUCCESS);
         orderClient.paymentOrder(payment.getOrderId());
@@ -55,10 +63,16 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public ResponseEntity<Double> calculateProductCost(OrderDto order) {
-        var productCost = order.getProducts().keySet().stream()
+        log.info("Calculate product cost for order: {}", order);
+        var productCost = 0.0;
+        Map<UUID, Integer> productMap = order.getProducts();
+        List<ProductDto> products = productMap.keySet().stream()
                 .map(storeClient::getProduct)
-                .map(ProductDto::getPrice)
-                .reduce(0.0, Double::sum);
+                .toList();
+
+        for (ProductDto product : products) {
+            productCost += product.getPrice() * productMap.get(product.getProductId());
+        }
 
         return ResponseEntity.ok(productCost);
     }
@@ -66,6 +80,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void failed(UUID paymentId) {
+        log.info("Failed payment: {}", paymentId);
         Payment payment = findPaymentById(paymentId);
         payment.setState(PaymentState.FAILED);
         orderClient.paymentFailedOrder(payment.getOrderId());

@@ -27,6 +27,7 @@ import java.util.UUID;
 public class DeliveryServiceImpl implements DeliveryService {
 
     private static final double BASE_PRICE = 5.0;
+    private static final String WAREHOUSE_ADDRESS = "ADDRESS_2";
 
     private final DeliveryRepository deliveryRepository;
     private final WarehouseClient warehouseClient;
@@ -52,11 +53,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         log.info("Successful delivery: {}", orderId);
         final Delivery delivery = findDeliveryById(orderId);
         delivery.setDeliveryState(DeliveryState.DELIVERED);
-        ShippedToDeliveryRequest request = ShippedToDeliveryRequest.builder()
-                .orderId(orderId)
-                .deliveryId(delivery.getDeliveryId())
-                .build();
-        warehouseClient.shipped(request);
+        orderClient.deliveryOrder(orderId);
         deliveryRepository.save(delivery);
     }
 
@@ -66,7 +63,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         log.info("Picked delivery: {}", orderId);
         final Delivery delivery = findDeliveryById(orderId);
         delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
-        orderClient.deliveryOrder(orderId);
+        orderClient.assemblyOrder(orderId);
+        warehouseClient.shipped(ShippedToDeliveryRequest.builder()
+                .deliveryId(delivery.getDeliveryId())
+                .orderId(orderId)
+                .build());
         deliveryRepository.save(delivery);
     }
 
@@ -92,7 +93,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // Если адрес склада содержит название ADDRESS_2, то умножаем на 2. Складываем получившийся результат
         // с базовой стоимостью.
-        if (fromAddress.getCity().equals("ADDRESS_2")) {
+        if (fromAddress.getCity().equals(WAREHOUSE_ADDRESS)) {
             result += BASE_PRICE * 2;
         }
 

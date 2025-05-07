@@ -130,6 +130,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public void shipped(ShippedToDeliveryRequest shippedToDeliveryRequest) {
+        log.info("Начало доставки: {}", shippedToDeliveryRequest);
         OrderBooking orderBooking = findOrderBooking(shippedToDeliveryRequest.getOrderId());
         orderBooking.setDeliveryId(shippedToDeliveryRequest.getDeliveryId());
         orderBookingRepository.save(orderBooking);
@@ -137,6 +138,7 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public void returnProduct(Map<UUID, Integer> returnMap) {
+        log.info("Возврат товара: {}", returnMap);
         List<WarehouseProduct> products = warehouseProductRepository.findAllByIdIn(new ArrayList<>(returnMap.keySet()));
         products.forEach(product -> {
             product.setQuantity(product.getQuantity() + returnMap.get(product.getId()));
@@ -146,15 +148,15 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public BookedProductsDto assemblyProduct(AssemblyProductsForOrderRequest request) {
+        log.info("Резервирование товаров: {}", request);
         Map<UUID, Integer> productMap = request.getProducts();
         BookedProductsDto bookedProductsDto = check(ShoppingCartDto.builder().products(productMap).build());
-        if (bookedProductsDto == null) {
-            List<WarehouseProduct> products = new ArrayList<>();
-            productMap.keySet().forEach(key -> {
-                WarehouseProduct product = warehouseProductRepository.findById(key);
-                product.setQuantity(product.getQuantity() - productMap.get(key));
-                products.add(product);
-            });
+        if (bookedProductsDto != null) {
+            List<WarehouseProduct> products = warehouseProductRepository
+                    .findAllByIdIn(new ArrayList<>(productMap.keySet()));
+            for (WarehouseProduct product : products) {
+                product.setQuantity(product.getQuantity() - productMap.get(product.getId()));
+            }
             warehouseProductRepository.saveAll(products);
             OrderBooking newOrderBooking = new OrderBooking();
             newOrderBooking.setOrderId(request.getOrderId());

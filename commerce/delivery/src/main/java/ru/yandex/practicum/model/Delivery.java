@@ -18,11 +18,11 @@ public class Delivery {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID deliveryId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "from_address", referencedColumnName = "id")
     private Address fromAddress;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "to_address", referencedColumnName = "id")
     private Address toAddress;
 

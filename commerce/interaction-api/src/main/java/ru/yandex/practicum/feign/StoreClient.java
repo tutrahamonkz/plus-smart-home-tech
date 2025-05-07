@@ -11,7 +11,8 @@ import ru.yandex.practicum.dto.QuantityState;
 import java.util.UUID;
 
 @FeignClient(name = "shopping-store",
-        path = "/api/v1/shopping-store/")
+        path = "/api/v1/shopping-store/",
+        fallbackFactory = StoreClientFallbackFactory.class)
 public interface StoreClient {
 
     @GetMapping()

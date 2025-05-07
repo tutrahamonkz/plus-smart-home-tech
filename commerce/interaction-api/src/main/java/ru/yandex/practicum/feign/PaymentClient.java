@@ -10,7 +10,8 @@ import ru.yandex.practicum.dto.PaymentDto;
 import java.util.UUID;
 
 @FeignClient(name = "payment",
-        path = "/api/v1/order")
+        path = "/api/v1/payment",
+        fallbackFactory = PaymentClientFallbackFactory.class)
 public interface PaymentClient {
 
     @PostMapping

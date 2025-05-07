@@ -2,6 +2,7 @@ package ru.yandex.practicum.service;
 
 import jakarta.ws.rs.NotAuthorizedException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import ru.yandex.practicum.repository.OrderRepository;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ResponseEntity<List<OrderDto>> findAllOrders(String userName) {
+        log.info("Find all orders by userName: {}", userName);
         if (userName.isBlank()) {
             throw new NotAuthorizedException("User is not authorized");
         }
@@ -38,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> createOrder(CreateNewOrderRequest createNewOrderRequest) {
+        log.info("Create new order request: {}", createNewOrderRequest);
         Order order = orderRepository.save(OrderMapper.mapToOrder(createNewOrderRequest));
         order.setState(OrderState.NEW);
 
@@ -55,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
         order.setDeliveryId(deliveryDto.getDeliveryId());
         order.setDeliveryWeight(bookedProductsDto.getDeliveryWeight());
         order.setDeliveryVolume(bookedProductsDto.getDeliveryVolume());
+        order.setFragile(bookedProductsDto.getFragile());
         order.setDeliveryPrice(deliveryClient.costDelivery(OrderMapper.mapToOrderDto(order)).getBody());
 
         order.setProductPrice(paymentClient.calculateProductCost(OrderMapper.mapToOrderDto(order)).getBody());
@@ -72,6 +77,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> returnOrder(ProductReturnRequest productReturnRequest) {
+        log.info("Return order request: {}", productReturnRequest);
         warehouseClient.returnProduct(productReturnRequest.getProducts());
         Order order = findOrderById(productReturnRequest.getOrderId());
         order.setState(OrderState.PRODUCT_RETURNED);
@@ -82,24 +88,25 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> paymentOrder(UUID orderId) {
+        log.info("Payment successful order: {}", orderId);
         Order order = findOrderById(orderId);
         order.setState(OrderState.PAID);
-        paymentClient.refund(order.getPaymentId());
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
     @Transactional
     public ResponseEntity<OrderDto> paymentFailedOrder(UUID orderId) {
+        log.info("Payment failed order: {}", orderId);
         Order order = findOrderById(orderId);
         order.setState(OrderState.PAYMENT_FAILED);
-        paymentClient.failed(order.getPaymentId());
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
     }
 
     @Override
     @Transactional
     public ResponseEntity<OrderDto> deliveryOrder(UUID orderId) {
+        log.info("Delivery successful order: {}", orderId);
         Order order = findOrderById(orderId);
         order.setState(OrderState.DELIVERED);
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
@@ -108,6 +115,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> deliveryFailedOrder(UUID orderId) {
+        log.info("Delivery failed order: {}", orderId);
         Order order = findOrderById(orderId);
         order.setState(OrderState.DELIVERY_FAILED);
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
@@ -116,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> completedOrder(UUID orderId) {
+        log.info("Complete order: {}", orderId);
         Order order = findOrderById(orderId);
         order.setState(OrderState.COMPLETED);
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
@@ -124,6 +133,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> calculateTotalOrder(UUID orderId) {
+        log.info("Calculate total order: {}", orderId);
         Order order = findOrderById(orderId);
         order.setTotalPrice(paymentClient.calculateTotalCost(OrderMapper.mapToOrderDto(order)).getBody());
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
@@ -132,6 +142,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> calculateDeliveryOrder(UUID orderId) {
+        log.info("Calculate delivery order: {}", orderId);
         Order order = findOrderById(orderId);
         order.setDeliveryPrice(deliveryClient.costDelivery(OrderMapper.mapToOrderDto(order)).getBody());
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
@@ -140,6 +151,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> assemblyOrder(UUID orderId) {
+        log.info("Assembly order: {}", orderId);
         Order order = findOrderById(orderId);
         warehouseClient.assemblyProduct(
                 AssemblyProductsForOrderRequest.builder()
@@ -154,6 +166,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public ResponseEntity<OrderDto> assemblyFailedOrder(UUID orderId) {
+        log.info("Assembly failed order: {}", orderId);
         Order order = findOrderById(orderId);
         order.setState(OrderState.ASSEMBLY_FAILED);
         return ResponseEntity.ok(OrderMapper.mapToOrderDto(orderRepository.save(order)));
