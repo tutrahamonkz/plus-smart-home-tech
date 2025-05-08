@@ -1,0 +1,18 @@
+server:
+  port: 0
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:6541/order_base
+    driver-class-name: org.postgresql.Driver
+    username: order_user
+    password: password5
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always

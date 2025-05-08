@@ -10,8 +10,9 @@ import ru.yandex.practicum.dto.QuantityState;
 
 import java.util.UUID;
 
-@FeignClient(name = "shopping-store")
-@RequestMapping("/api/v1/shopping-store/")
+@FeignClient(name = "shopping-store",
+        path = "/api/v1/shopping-store/",
+        fallbackFactory = StoreClientFallbackFactory.class)
 public interface StoreClient {
 
     @GetMapping()
@@ -30,5 +31,5 @@ public interface StoreClient {
     public Boolean quantityState(@RequestParam UUID productId, @RequestParam QuantityState quantity);
 
     @GetMapping("/{productId}")
-    public ProductDto getProduct(@PathVariable String productId);
+    public ProductDto getProduct(@PathVariable UUID productId);
 }

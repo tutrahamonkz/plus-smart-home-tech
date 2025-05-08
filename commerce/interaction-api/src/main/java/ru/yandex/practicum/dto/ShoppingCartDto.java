@@ -12,7 +12,7 @@ import java.util.UUID;
 @ToString
 public class ShoppingCartDto {
 
-    private Long shoppingCartId;
+    private UUID shoppingCartId;
 
     private Map<UUID, Integer> products;
 }
